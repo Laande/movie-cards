@@ -36,7 +36,6 @@ export default function MovieCard({ data }: Props) {
       const dataUrl = await toPng(cardRef.current, {
         quality: 1,
         pixelRatio: 3,
-        cacheBust: true,
       });
       const link = document.createElement("a");
       link.download = `${data.title.replace(/[^a-zA-Z0-9]/g, "_")}.png`;
