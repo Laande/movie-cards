@@ -50,7 +50,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center gap-8 px-4 py-8 min-h-dvh bg-[radial-gradient(ellipse_at_top,_#1c1917_0%,_#0a0a0a_50%,_#000000_100%)]">
+    <div className="flex flex-col items-center gap-8 px-4 py-8 flex-1">
       <header className="text-center">
         <h1 className="text-2xl font-bold text-white">Movie Cards</h1>
         <p className="text-zinc-400 text-sm mt-1">
