@@ -25,26 +25,67 @@ interface Props {
   data: CardData;
 }
 
+function Spinner() {
+  return (
+    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+    </svg>
+  );
+}
+
+async function generateImage(el: HTMLElement): Promise<string> {
+  return toPng(el, { quality: 1, pixelRatio: 3 });
+}
+
 export default function MovieCard({ data }: Props) {
   const cardRef = useRef<HTMLDivElement>(null);
-  const [saving, setSaving] = useState(false);
+  const [busy, setBusy] = useState<"save" | "copy" | "share" | null>(null);
 
   const handleSave = useCallback(async () => {
     if (!cardRef.current) return;
-    setSaving(true);
+    setBusy("save");
     try {
-      const dataUrl = await toPng(cardRef.current, {
-        quality: 1,
-        pixelRatio: 3,
-      });
+      const dataUrl = await generateImage(cardRef.current);
       const link = document.createElement("a");
       link.download = `${data.title.replace(/[^a-zA-Z0-9]/g, "_")}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
-      console.error("Save failed:", err);
+      console.error(err);
     } finally {
-      setSaving(false);
+      setBusy(null);
+    }
+  }, [data.title]);
+
+  const handleCopy = useCallback(async () => {
+    if (!cardRef.current) return;
+    setBusy("copy");
+    try {
+      const dataUrl = await generateImage(cardRef.current);
+      const blob = await (await fetch(dataUrl)).blob();
+      await navigator.clipboard.write([
+        new ClipboardItem({ "image/png": blob }),
+      ]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setBusy(null);
+    }
+  }, []);
+
+  const handleShare = useCallback(async () => {
+    if (!cardRef.current) return;
+    setBusy("share");
+    try {
+      const dataUrl = await generateImage(cardRef.current);
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], `${data.title.replace(/[^a-zA-Z0-9]/g, "_")}.png`, { type: "image/png" });
+      await navigator.share({ files: [file], title: data.title });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setBusy(null);
     }
   }, [data.title]);
 
@@ -130,13 +171,27 @@ export default function MovieCard({ data }: Props) {
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex gap-2">
         <button
           onClick={handleSave}
-          disabled={saving}
-          className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-sm transition-colors"
+          disabled={busy === "save"}
+          className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-sm transition-colors flex items-center gap-1.5"
         >
-          {saving ? "Generating..." : "Save as PNG"}
+          {busy === "save" ? <Spinner /> : "Save"}
+        </button>
+        <button
+          onClick={handleCopy}
+          disabled={busy === "copy"}
+          className="px-4 py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-600 disabled:opacity-50 text-white font-medium text-sm transition-colors flex items-center gap-1.5"
+        >
+          {busy === "copy" ? <Spinner /> : "Copy"}
+        </button>
+        <button
+          onClick={handleShare}
+          disabled={busy === "share"}
+          className="px-4 py-2.5 rounded-xl bg-zinc-700 hover:bg-zinc-600 disabled:opacity-50 text-white font-medium text-sm transition-colors flex items-center gap-1.5"
+        >
+          {busy === "share" ? <Spinner /> : "Share"}
         </button>
       </div>
     </div>
