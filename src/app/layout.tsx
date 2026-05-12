@@ -21,22 +21,7 @@ export const metadata: Metadata = {
   icons: [
     { rel: "icon", url: "/favicon.svg", type: "image/svg+xml" },
     { rel: "apple-touch-icon", url: "/icons/icon-192.svg", type: "image/svg+xml" },
-  ],
-  openGraph: {
-    title: "Movie Cards",
-    description: "Create movie & TV show cards to share",
-    url: "https://movie.habtrack.top",
-    siteName: "Movie Cards",
-    images: [{ url: "/icons/icon-512.svg", width: 512, height: 512 }],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Movie Cards",
-    description: "Create movie & TV show cards to share",
-    images: ["/icons/icon-512.svg"],
-  },
+  ]
 };
 
 export const viewport: Viewport = {
